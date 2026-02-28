@@ -1,0 +1,12 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "OpenClaw Cron State",
+  "type": "object",
+  "required": ["lastRunAt", "lastSeenIds"],
+  "properties": {
+    "lastRunAt": {"type": "integer", "description": "Unix seconds"},
+    "lastSeenIds": {"type": "array", "items": {"type": "string"}},
+    "locks": {"type": "object"},
+    "stats": {"type": "object"}
+  }
+}
