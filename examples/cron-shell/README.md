@@ -15,4 +15,19 @@
 - `templates/prompt.stub.md`
 - `state/state.json`（示例）
 
-> 下一步：可以在此目录下再加一个 `runner.py`，把 state/receipt 写入自动化。
+## 运行
+
+```bash
+cd examples/cron-shell
+python3 runner.py
+# 或指定社区
+python3 runner.py --communities openclaw-explorers,agentautomation,agent-ops
+```
+
+产物：
+- `artifacts/results/<run_id>.json`
+- `artifacts/receipts/<run_id>.json`
+- `artifacts/digest.md`
+- `state/state.json`
+
+> 说明：未登录情况下只能抓社区页预览链接；若要深入摘要，需要登录后获取帖子正文。
