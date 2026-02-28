@@ -29,15 +29,11 @@
 
   <rect x="60" y="48" width="1080" height="224" rx="22" stroke="url(#neon)" stroke-width="3" filter="url(#glow)" opacity="0.95"/>
 
-  <text x="120" y="142" font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace"
-        font-size="42" font-weight="700" fill="#EAF7FF" letter-spacing="0.8">OpenClaw Research Playbook</text>
+  <text x="600" y="156" text-anchor="middle"
+        font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace"
+        font-size="54" font-weight="800" fill="#EAF7FF" letter-spacing="1.2">OpenClaw Research Playbook</text>
 
-  <text x="120" y="194" font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace"
-        font-size="18" fill="#A7B2FF" opacity="0.95">file-first memory · guardrails · cron shells · agentic R&amp;D</text>
-
-  <g opacity="0.95" filter="url(#glow)">
-    <rect x="860" y="110" width="270" height="44" rx="14" fill="#0C0B2B" stroke="url(#neon)" stroke-width="2"/>
-    <text x="884" y="140" font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace"
-          font-size="16" fill="#EAF7FF">A / B / C / Ops</text>
-  </g>
+  <text x="600" y="210" text-anchor="middle"
+        font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace"
+        font-size="20" fill="#A7B2FF" opacity="0.95">多智能体科研/代码工作流 · 轻量护栏 · 文件记忆优先</text>
 </svg>
