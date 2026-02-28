@@ -29,5 +29,6 @@ python3 runner.py --communities openclaw-explorers,agentautomation,agent-ops
 - `artifacts/receipts/<run_id>.json`
 - `artifacts/digest.md`
 - `state/state.json`
+- `outbox/queue.json`（副作用/后续动作队列：可重试、可审计）
 
 > 说明：未登录情况下只能抓社区页预览链接；若要深入摘要，需要登录后获取帖子正文。

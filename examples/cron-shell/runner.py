@@ -40,6 +40,7 @@ CACHE_DIR = ARTIFACTS / "cache"
 RESULTS_DIR = ARTIFACTS / "results"
 RECEIPTS_DIR = ARTIFACTS / "receipts"
 STATE_PATH = ROOT / "state" / "state.json"
+OUTBOX_DIR = ROOT / "outbox"
 
 DEFAULT_TTL_SECONDS = 30 * 60
 
@@ -138,7 +139,7 @@ def build_run_id(ts: int) -> str:
     return time.strftime("%Y%m%d-%H%M%S", time.localtime(ts))
 
 
-def write_receipt(run_id: str, inputs_hash: str, decision: str, side_effects: list[dict[str, Any]], notes: str = "") -> Path:
+def write_receipt(run_id: str, inputs_hash: str, decision: str, side_effects: list[dict[str, Any]], notes: str = "", outbox: list[dict[str, Any]] | None = None) -> Path:
     RECEIPTS_DIR.mkdir(parents=True, exist_ok=True)
     path = RECEIPTS_DIR / f"{run_id}.json"
     obj = {
@@ -147,6 +148,7 @@ def write_receipt(run_id: str, inputs_hash: str, decision: str, side_effects: li
         "inputs_hash": inputs_hash,
         "decision": decision,
         "side_effects": side_effects,
+        "outbox": outbox or [],
         "validity_checked_at": now(),
         "notes": notes,
     }
@@ -176,6 +178,44 @@ def write_digest(summary_lines: list[str], evidence: list[str], todo: str, draft
     path.write_text("\n".join(md), encoding="utf-8")
 
 
+def load_outbox() -> list[dict[str, Any]]:
+    OUTBOX_DIR.mkdir(parents=True, exist_ok=True)
+    path = OUTBOX_DIR / "queue.json"
+    if not path.exists():
+        return []
+    try:
+        return json.loads(path.read_text(encoding="utf-8"))
+    except Exception:
+        return []
+
+
+def save_outbox(items: list[dict[str, Any]]) -> None:
+    OUTBOX_DIR.mkdir(parents=True, exist_ok=True)
+    path = OUTBOX_DIR / "queue.json"
+    path.write_text(json.dumps(items, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+
+
+def enqueue_outbox(items: list[dict[str, Any]], task: dict[str, Any]) -> None:
+    items.append(task)
+
+
+def process_outbox(items: list[dict[str, Any]], budget: int = 3) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
+    """Process at most N outbox items. This is a placeholder for real side effects.
+
+    For safety, we do NOT perform external side effects here. We only mark tasks as "ready".
+    """
+    processed = []
+    remaining = []
+    for i, t in enumerate(items):
+        if i < budget:
+            t = dict(t)
+            t["status"] = t.get("status") or "ready"
+            processed.append(t)
+        else:
+            remaining.append(t)
+    return remaining, processed
+
+
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument(
@@ -188,6 +228,7 @@ def main() -> None:
 
     communities = [c.strip() for c in args.communities.split(",") if c.strip()]
     state = load_state()
+    outbox_items = load_outbox()
 
     ts = now()
     run_id = build_run_id(ts)
@@ -227,6 +268,10 @@ def main() -> None:
     out_path = RESULTS_DIR / f"{run_id}.json"
     out_path.write_text(json.dumps({"run_id": run_id, "data": all_posts, "new": new_ids}, ensure_ascii=False, indent=2) + "\n")
 
+    # Always process outbox placeholder (no external side effects)
+    outbox_items, processed_outbox = process_outbox(outbox_items, budget=3)
+    save_outbox(outbox_items)
+
     # No-new-signal exit
     if not new_ids:
         decision = "no-new-signal-exit"
@@ -236,6 +281,7 @@ def main() -> None:
             decision,
             side_effects + [{"type": "write", "target": str(out_path), "status": "ok"}],
             notes="No new post ids compared to state.lastSeenIds",
+            outbox=processed_outbox,
         )
         write_digest(
             summary_lines=[
@@ -258,6 +304,19 @@ def main() -> None:
     state.setdefault("stats", {}).update({"runs": int(state.get("stats", {}).get("runs", 0)) + 1, "new": len(new_ids)})
     save_state(state)
 
+    # Enqueue outbox tasks (safe placeholder)
+    for href in new_ids[:10]:
+        enqueue_outbox(
+            outbox_items,
+            {
+                "type": "review_post",
+                "target": href,
+                "created_at": ts,
+                "status": "queued",
+            },
+        )
+    save_outbox(outbox_items)
+
     decision = f"new-items:{len(new_ids)}"
     receipt = write_receipt(
         run_id,
@@ -266,7 +325,9 @@ def main() -> None:
         side_effects + [
             {"type": "write", "target": str(out_path), "status": "ok"},
             {"type": "write", "target": str(STATE_PATH), "status": "ok"},
+            {"type": "write", "target": str(OUTBOX_DIR / 'queue.json'), "status": "ok"},
         ],
+        outbox=processed_outbox,
     )
 
     # Minimal digest (we don't have full post bodies without login)
