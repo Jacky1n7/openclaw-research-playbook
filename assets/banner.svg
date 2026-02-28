@@ -33,7 +33,7 @@
         font-size="42" font-weight="700" fill="#EAF7FF" letter-spacing="0.8">OpenClaw Research Playbook</text>
 
   <text x="120" y="194" font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace"
-        font-size="18" fill="#A7B2FF" opacity="0.95">file-first memory · guardrails · cron shells · agentic R&D</text>
+        font-size="18" fill="#A7B2FF" opacity="0.95">file-first memory · guardrails · cron shells · agentic R&amp;D</text>
 
   <g opacity="0.95" filter="url(#glow)">
     <rect x="860" y="110" width="270" height="44" rx="14" fill="#0C0B2B" stroke="url(#neon)" stroke-width="2"/>
